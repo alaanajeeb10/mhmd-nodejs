@@ -1,0 +1,35 @@
+<%- include("page_top.ejs") %>
+<main>
+    <h1>
+        adding task
+    </h1>
+    <form action="/Task/Add" method="post">
+        <input type="text" name="name"          id="name"        placeholder="name"       /> <br><br>
+        <input type="text" name="due_date   "   id="due_date   " placeholder="due_date   "/> <br><br>
+        <input type="text" name="done_date  "   id="done_date  " placeholder="done_date  "/> <br><br>
+        <select name="category_id"   id="category_id" >
+            <option value="2">line 1</option>
+            <option value="5">line more</option>
+        </select>
+        <br><br>
+        <input type="text" name="owner_id   "   id="owner_id   " placeholder="owner_id   "/> <br><br>
+        <input type="text" name="creator_id "   id="creator_id " placeholder="creator_id "/> <br><br>
+        <button>send</button>
+    </form>
+</main>
+<script>
+    async function GetCats() {
+        let response = await fetch('/Cat/List');
+        // console.log("response=",response);
+        let data = await response.json();
+        console.log("data=",data);
+
+        let s='';
+        for(let row of data){
+            s+=`<option value="${row.id}">${row.name}</option>`;
+        }
+        document.getElementById("category_id").innerHTML=s;
+    }
+    GetCats();
+</script>
+<%- include("page_bottom.ejs") %>
