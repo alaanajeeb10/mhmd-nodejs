@@ -42,25 +42,7 @@
         return false;
     }
 
-    function CreateTable() {
-        srchTerm = document.getElementById("filterField").value;
-        let data = raw_data.filter(FilterData);
-        let str = "";
-        for (let line of data) {
-            str += "<tr>";
-            str += "<td>" + line.name + "</td>";
-            str += "<td>" + line.id + "</td>";
-            str += "<td>" + line.date + "</td>";
-            str += "<td>" + line.clockIn + "</td>";
-            str += "<td>" + line.clockOut + "</td>";
-            str +=
-                "<td><button onclick=\"deleteRow(" +
-                line.idxOnServer +
-                ");\">מחק</button></td>";
-            str += "</tr>";
-        }
-        document.getElementById("mainTable").innerHTML = str;
-    }
+  
 
     async function getList() {
         let response = await fetch("/List");
