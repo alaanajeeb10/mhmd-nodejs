@@ -32,7 +32,6 @@ async function deleteRow(idx) {
         body: JSON.stringify(objToServer),
     });
 
-    // לאחר מחיקת השורה, עדכן את הטבלה
     CreateTable();
 }
 
