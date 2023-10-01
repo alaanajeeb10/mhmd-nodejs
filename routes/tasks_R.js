@@ -18,7 +18,6 @@ router.post('/clockIn', function (req, res) {
 
     saveEntry(id, name, id, date, () => {
         const randomTime = format(new Date(), "HH:mm:ss");
-        res.json({ date: date, exactTime: randomTime });
     });
 });
 async function deleteRow(idx) {
