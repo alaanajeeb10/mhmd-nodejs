@@ -1,35 +1,151 @@
 <%- include("page_top.ejs") %>
-<main>
-    <h1>
-        adding task
-    </h1>
-    <form action="/Task/Add" method="post">
-        <input type="text" name="name"          id="name"        placeholder="name"       /> <br><br>
-        <input type="text" name="due_date   "   id="due_date   " placeholder="due_date   "/> <br><br>
-        <input type="text" name="done_date  "   id="done_date  " placeholder="done_date  "/> <br><br>
-        <select name="category_id"   id="category_id" >
-            <option value="2">line 1</option>
-            <option value="5">line more</option>
-        </select>
-        <br><br>
-        <input type="text" name="owner_id   "   id="owner_id   " placeholder="owner_id   "/> <br><br>
-        <input type="text" name="creator_id "   id="creator_id " placeholder="creator_id "/> <br><br>
-        <button>send</button>
+<title>מסך עובדים</title>
+<body>
+<div id="AddForm">
+    <form id="employeeForm">
+        <input type="text" name="name" id="name" placeholder="שם" />
+        <input type="text" name="id" id="id" placeholder="מספר זיהוי" />
+        <input type="date" name="date" id="date" placeholder="תאריך" />
+        <input type="hidden" name="clockInTime" id="clockInTime" value="" />
+        <button type="button" onclick="clockIn();">כניסה</button>
+        <button type="button" onclick="addNewRow();">שלח</button>
     </form>
-</main>
-<script>
-    async function GetCats() {
-        let response = await fetch('/Cat/List');
-        // console.log("response=",response);
-        let data = await response.json();
-        console.log("data=",data);
+</div>
 
-        let s='';
-        for(let row of data){
-            s+=`<option value="${row.id}">${row.name}</option>`;
+<br />
+
+<hr>
+<button onclick="deleteRow();">מחק</button>
+<hr />
+<button onclick="editRow(1);">ערוך</button>
+<hr />
+<button onclick="clockIn();">כניסה</button>
+<hr />
+<button onclick="clockOut();">יציאה</button>
+
+<input type="text" id="filterField" placeholder="חפש לפי שם" oninput="CreateTable();" />
+<table>
+    <thead>
+    </thead>
+    <tbody id="mainTable"></tbody>
+</table>
+<script>
+    let raw_data = [];
+    let srchTerm = "";
+
+    function FilterData(el) {
+        if (srchTerm === "") return true;
+        let reg = new RegExp(srchTerm, "i");
+        if (reg.test(el.name)) {
+            return true;
         }
-        document.getElementById("category_id").innerHTML=s;
+        return false;
     }
-    GetCats();
+
+    function CreateTable() {
+        srchTerm = document.getElementById("filterField").value;
+        let data = raw_data.filter(FilterData);
+        let str = "";
+        for (let line of data) {
+            str += "<tr>";
+            str += "<td>" + line.name + "</td>";
+            str += "<td>" + line.id + "</td>";
+            str += "<td>" + line.date + "</td>";
+            str += "<td>" + line.clockIn + "</td>";
+            str += "<td>" + line.clockOut + "</td>";
+            str +=
+                "<td><button onclick=\"deleteRow(" +
+                line.idxOnServer +
+                ");\">מחק</button></td>";
+            str += "</tr>";
+        }
+        document.getElementById("mainTable").innerHTML = str;
+    }
+
+    async function getList() {
+        let response = await fetch("/List");
+        let data = await response.json();
+        raw_data = data;
+        CreateTable();
+    }
+
+    async function addNewRow() {
+        let name = document.getElementById("name").value;
+        let id = document.getElementById("id").value;
+        let date = document.getElementById("date").value;
+        let clockInTime = document.getElementById("clockInTime").value;
+
+        if (name.trim() !== "" && id.trim() !== "" && date.trim() !== "") {
+            let newRow = document.getElementById("mainTable").insertRow();
+            newRow.innerHTML =
+                "<td>" +
+                name +
+                "</td><td>" +
+                id +
+                "</td><td>" +
+                date +
+                "</td><td>" +
+                clockInTime +
+                "</td><td></td><td><button onclick=\"deleteRow(" +
+                raw_data.length +
+                ");\">מחק</button></td>";
+
+            let response = await fetch("/Add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: name,
+                    id: id,
+                    date: date,
+                    clockIn: clockInTime,
+                    clockOut: "",
+                    idxOnServer: raw_data.length,
+                }),
+            });
+
+            document.getElementById("name").value = "";
+            document.getElementById("id").value = "";
+            document.getElementById("date").value = "";
+            document.getElementById("clockInTime").value = "";
+        }
+    }
+
+    async function deleteRow(idx) {
+        let objToServer = {};
+        objToServer.idx = idx;
+        let response = await fetch("/Delete", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(objToServer),
+        });
+        getList();
+    }
+
+    async function editRow(idx) {
+        // כאן יש להוסיף ללוגיקת העריכה שלך
+        // זו תלויתית בדרישות של האפליקציה שלך
+    }
+
+    async function clockIn() {
+        let now = new Date();
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+        let seconds = now.getSeconds();
+        let formattedTime = hours + ":" + minutes + ":" + seconds;
+
+        document.getElementById("clockInTime").value = formattedTime;
+    }
+
+    async function clockOut() {
+        // כאן יש להוסיף ללוגיקת היציאה שלך
+        // זו תלויתית בדרישות של האפליקציה שלך
+    }
+
+    getList();
 </script>
 <%- include("page_bottom.ejs") %>
+</body>

@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const port = 8855;
+const port = 2112;
 app.use(express.json());
 
 const bodyParser = require('body-parser');
@@ -16,9 +16,9 @@ var db_M = require('./database');
 global.db_pool = db_M.pool;
 
 app.get("/", (req, res) => {
-    res.render("Task");
+    res.render("tasks");
 });
 
 app.listen(port, () => {
-    console.log(Now listening on port http://localhost:${port});
-        })
+    console.log(`Now listening on port http://localhost:${port}`);
+        });
